@@ -1,0 +1,98 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>High Maps Sample</title>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <style type="text/css">
+        #container
+        {
+            height: 500px;
+            min-width: 310px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .loading
+        {
+            margin-top: 10em;
+            text-align: center;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript" src="js/highmaps.js"></script>
+    <script type="text/javascript" src="js/custom/world.js"></script>
+    <div id="container" style="max-width: 1000px">
+    </div>
+    <div id="dialog" class="dialog">
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            //$.getJSON("json/worlddata.json", function (data) {
+            $.getJSON("json/loc.json", function (data) {
+                var geodata = data.aaData;
+                // Initiate the Map
+                $('#container').highcharts('Map', {
+                    title: {
+                        text: 'Cars Production By Country'
+                    },
+                    mapNavigation: {
+                        enabled: true,
+                        buttonOptions: {
+                            verticalAlign: 'bottom'
+                        }
+                    },
+                    colorAxis: {
+                        min: 1,
+                        max: 1000,
+                        type: 'logarithmic'
+                    },
+                    series: [{
+                        data: geodata,
+                        mapData: Highcharts.maps['custom/world'],
+                        joinBy: ['iso-a2', 'code'],
+                        name: 'Location',
+                        states: {
+                            hover: {
+                                color: '#BADA55'
+                            }
+                        },
+                        point: {
+                            events: {
+                                click: function () {
+                                    var data_obj = this;
+                                    var ctryData = getDatabyCountry(data_obj.code);
+                                    if (ctryData.length != 0) {
+                                        // alert(data_obj.name);
+                                        $('#dialog').dialog({
+                                            title: "Country: " + data_obj.name,
+                                            position: { my: "right bottom", at: "right bottom", of: $('#container') },
+                                        });
+                                        $('#dialog').html(ctryData[0].value);
+                                    } else {
+                                        $('#dialog').dialog('close');
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                });
+            });
+        });
+
+        function getDatabyCountry(country) {
+            var _ctyjson = [
+            { key: "US", value: "<div>San Jose, CA - 24 <br/> Thomasville, AL - 36</div>" },
+            { key: "IN", value: "<div>Delhi, IN - 40 <br/> Mumbai, IN - 50<br/> Bangalore, IN - 20</div>" },
+            { key: "DE", value: "<div>Berlin, DE - 9</div>" }
+            ];
+            var matchedItem = jQuery.grep(_ctyjson, function (a) {
+                return a.key == country;
+            });
+            return matchedItem;
+        }
+    </script>
+</body>
+</html>
